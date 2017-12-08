@@ -13,7 +13,37 @@
   
   (context "/api/v1.0.0" []
            :tags ["lenamkei"]
-           
+
+           (POST "/gen-enc-key" []
+                :return       String
+                :body-params [termifckiku :- String]
+                :summary      "generate encrypt key pair for encrypt"
+                (ok (func/gen-enc-key termifckiku)))
+
+           (POST "/gen-dsa-key" []
+                 :return       String
+                 :body-params [termifckiku :- String]
+                 :summary      "generate encrypt key pair for signature"
+                 (ok (func/gen-dsa-key termifckiku)))
+
+           (GET "/public-key" []
+                 :return       String
+                 :query-params [ckiku :- String]
+                 :summary      "get public key of input key pair"
+                 (ok (func/get-pub-key-text ckiku)))
+
+           (POST "/encrypt-text" []
+                :return       String
+                :body-params [ckiku :- String, selmifra :- String]
+                :summary      "encrypt text in  public key of receiver"
+                (ok (func/encrypt-text selmifra ckiku)))
+
+           (POST "/decrypt-text" []
+                 :return       String
+                 :body-params [ckiku :- String, mifra :- String, termifckiku :- String]
+                 :summary      "decrypt text by self private key"
+                 (ok (func/decrypt-text mifra ckiku termifckiku)))
+ 
            (GET "/kasnahu" []
                 :return       String
                 :query-params [cmene :- String, namcu :- String]

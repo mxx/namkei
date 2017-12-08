@@ -36,7 +36,7 @@
   :resource-paths ["resources"]
   :target-path "target/%s/"
   :main ^:skip-aot namkei.core
-  :aot [namkei.funcs]
+  
   :plugins [[lein-cprop "1.0.3"]
             [lein-immutant "2.1.0"]]
   
