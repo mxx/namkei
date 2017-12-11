@@ -36,6 +36,7 @@
 (defn- hex-sha256 [text]
   (-> text hash/sha256 bytes->hex)
   )
+
 (defn kasnahu [cmene namcu]
   (let [text (string/join " " [cmene namcu])]
     (-> (string/join "," [(hex-sha256 text) (salt text)]) hash/md5 bytes->hex)
@@ -57,15 +58,6 @@
     )
   )
 
-(defn gen-enc-key [passphrase]
-  (-> (gen-sec-keyring gen-ec-enc-pair passphrase)
-      .getEncoded base64/encode String.)
-  )
-
-(defn gen-dsa-key [passphrase]
-  (-> (gen-sec-keyring gen-ec-dsa-pair passphrase)
-      .getEncoded base64/encode String.)
-  )
 
 (defn gen-ec-pair [opt]
   (let [ec (pgp-gen/ec-keypair-generator "secp256k1")]
@@ -78,6 +70,16 @@
 
 (defn gen-ec-dsa-pair []
   (gen-ec-pair :ecdsa)
+  )
+
+(defn gen-enc-key [passphrase]
+  (-> (gen-sec-keyring gen-ec-enc-pair passphrase)
+      .getEncoded base64/encode String.)
+  )
+
+(defn gen-dsa-key [passphrase]
+  (-> (gen-sec-keyring gen-ec-dsa-pair passphrase)
+      .getEncoded base64/encode String.)
   )
 
 
@@ -108,6 +110,21 @@
 (defn decrypt-text [text keyring passphrase]
   (let [privkey (extract-private-key keyring passphrase)]
     (pgp-msg/decrypt (base64/decode text) privkey)
+    )
+  )
+
+(defn sig-text [text keyring passphrase]
+  (let [privkey (extract-private-key keyring passphrase)]
+    (-> (pgp-sig/sign text privkey)
+        pgp/encode base64/encode
+        String.)
+    )
+  )
+
+(defn verify-signature [text sig-text pubkey-text]
+  (let [sig (-> sig-text base64/decode pgp/decode first first)
+        pubkey (pgp/decode-public-key pubkey-text)]
+    (pgp-sig/verify text sig pubkey)
     )
   )
 

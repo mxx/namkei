@@ -43,6 +43,18 @@
                  :body-params [ckiku :- String, mifra :- String, termifckiku :- String]
                  :summary      "decrypt text by self private key"
                  (ok (func/decrypt-text mifra ckiku termifckiku)))
+
+           (POST "/signature" []
+                 :return       String
+                 :body-params [ckiku :- String, mifra :- String, termifckiku :- String]
+                 :summary      "sign mifra by ckiku"
+                 (ok (func/sig-text mifra ckiku termifckiku)))
+
+           (POST "/verify" []
+                 :return       String
+                 :body-params [sinxa :- String, selmifra :- String, pubkey :- String]
+                 :summary     "verify signature according to  public key"
+                 (ok (.toString  (func/verify-signature selmifra sinxa pubkey))))
  
            (GET "/kasnahu" []
                 :return       String
