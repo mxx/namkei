@@ -17,13 +17,13 @@
            (POST "/gen-enc-key" []
                 :return       String
                 :body-params [termifckiku :- String]
-                :summary      "generate encrypt key pair for encrypt"
+                :summary      "generate key pair for encryption"
                 (ok (func/gen-enc-key termifckiku)))
 
            (POST "/gen-dsa-key" []
                  :return       String
                  :body-params [termifckiku :- String]
-                 :summary      "generate encrypt key pair for signature"
+                 :summary      "generate key pair for signature"
                  (ok (func/gen-dsa-key termifckiku)))
 
            (GET "/public-key" []
