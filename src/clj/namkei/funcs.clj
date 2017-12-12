@@ -3,6 +3,8 @@
             [buddy.core.hash :as hash]
             [buddy.core.codecs :refer :all]
             [buddy.core.codecs.base64 :as base64]
+            [buddy.core.crypto :as crypto]
+            [buddy.core.nonce :as nonce]
             [buddy.core.keys :as keys]
             [clj-pgp.core :as pgp]
             [clj-pgp.generate :as pgp-gen]
@@ -127,6 +129,31 @@
     (pgp-sig/verify text sig pubkey)
     )
   )
+
+(defn selmifra [^String fe ^String fi]
+  "decrypt fe with fi, fi is json string for key param, hex encoded"
+  (let [key (:key fi)
+        iv (:iv fi)]
+    (-> (crypto/decrypt (base64/decode fe) (hex->bytes  key) (hex->bytes iv)
+                        {:algorithm :aes256-gcm})
+        String.
+        )
+    )
+  )
+
+(defn mifra [^String fa ^String fe ^String fi]
+  
+  (if (empty? fa)
+    (let [key (:key fi)
+          iv (:iv fi)]
+      (-> 
+       (crypto/encrypt (str->bytes fe) (hex->bytes key) (hex->bytes iv)
+                       {:algorithm :aes256-gcm})
+       base64/encode
+       bytes->str ))
+    ;;else
+    (selmifra fa fi)
+    ))
 
 (defn- save-secret-key [name seckey]
   (with-open [o (output-stream name)]

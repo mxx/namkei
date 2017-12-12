@@ -4,6 +4,20 @@
             [namkei.funcs :as func]
             [schema.core :as s]))
 
+(s/defschema Key {:key s/Str,
+                   :iv s/Str
+                   })
+
+(defn call-func [fn & args]
+  (print args)
+  (try
+    (ok  (apply fn args))
+    (catch Exception e
+      (bad-request (str  (.getMessage e)))
+      ))
+  )
+
+
 (defapi service-routes
   {:swagger {:ui "/api-ui"
              :spec "/enigma.json"
@@ -55,7 +69,13 @@
                  :body-params [sinxa :- String, selmifra :- String, pubkey :- String]
                  :summary     "verify signature according to  public key"
                  (ok (.toString  (func/verify-signature selmifra sinxa pubkey))))
- 
+
+           (POST "/mifra" []
+                 :return       String
+                 :body-params [{fa :- String ""} , {fe :- String ""}  fi :- Key  ]
+                 :summary     "block ciper, encrypt: fe fi decrypt: fa fi"
+                 (call-func func/mifra fa fe fi))
+
            (GET "/kasnahu" []
                 :return       String
                 :query-params [cmene :- String, namcu :- String]
