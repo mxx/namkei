@@ -130,19 +130,16 @@
     )
   )
 
-(defn selmifra [^String fe ^String fi]
+(defn selmifra [^String fe fi]
   "decrypt fe with fi, fi is json string for key param, hex encoded"
   (let [key (:key fi)
         iv (:iv fi)]
     (-> (crypto/decrypt (base64/decode fe) (hex->bytes  key) (hex->bytes iv)
                         {:algorithm :aes256-gcm})
-        String.
-        )
-    )
+        String. ))
   )
 
-(defn mifra [^String fa ^String fe ^String fi]
-  
+(defn mifra [^String fa ^String fe fi]
   (if (empty? fa)
     (let [key (:key fi)
           iv (:iv fi)]
@@ -151,7 +148,7 @@
                        {:algorithm :aes256-gcm})
        base64/encode
        bytes->str ))
-    ;;else
+ ;;else
     (selmifra fa fi)
     ))
 
