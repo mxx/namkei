@@ -10,7 +10,10 @@
                  [luminus-immutant "0.2.4"]
                  [luminus-nrepl "0.1.4"]
                  [luminus/ring-ttl-session "0.3.2"]
-                 [metosin/compojure-api "1.1.11" :exclusions [com.google.guava/guava cheshire]]
+                 [metosin/compojure-api "1.1.11" :exclusions [com.google.guava/guava
+                                                              cheshire
+                                                              riddley
+                                                              ]]
                  [metosin/muuntaja "0.4.1"]
                  [metosin/ring-http-response "0.9.0"]
                  [mount "0.1.11"]
@@ -24,7 +27,7 @@
                  [ring-webjars "0.2.0"]
                  [ring/ring-core "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
-                 [mvxcvi/clj-pgp "0.9.0" :exclusions [riddley]]
+                 [mvxcvi/clj-pgp "0.9.0" ]
                  [buddy/buddy-core "1.4.0"]
                  [selmer "1.11.3"]]
   
