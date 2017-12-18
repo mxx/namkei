@@ -2,6 +2,7 @@
   (:require [ring.util.http-response :refer :all]
             [compojure.api.sweet :refer :all]
             [namkei.funcs :as func]
+            [clojure.tools.logging :as log]
             [schema.core :as s]))
 
 (s/defschema Key {:key s/Str,
@@ -9,7 +10,7 @@
                    })
 
 (defn call-func [fn & args]
-  (print args)
+  (log/info (str fn ":") args)
   (try
     (ok  (apply fn args))
     (catch Exception e
@@ -32,13 +33,13 @@
                 :return       String
                 :body-params [termifckiku :- String]
                 :summary      "generate key pair for encryption"
-                (ok (func/gen-enc-key termifckiku)))
+                (call-func func/gen-enc-key termifckiku))
 
            (POST "/gen-dsa-key" []
                  :return       String
                  :body-params [termifckiku :- String]
                  :summary      "generate key pair for signature"
-                 (ok (func/gen-dsa-key termifckiku)))
+                 (call-func func/gen-dsa-key termifckiku))
 
            (GET "/public-key" []
                  :return       String

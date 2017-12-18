@@ -11,6 +11,7 @@
             [clj-pgp.message :as pgp-msg]
             [clj-pgp.keyring :as keyring]
             [clj-pgp.signature :as pgp-sig]
+            [clojure.tools.logging :as log]
             )
   (:import (org.bouncycastle.openpgp.operator.bc BcPGPDigestCalculatorProvider
                                                  BcPBESecretKeyEncryptorBuilder
@@ -46,6 +47,7 @@
   )
 
 (defn pgp-lock-key [keyPair  ^String passphrase]
+  (log/info "lock key")
   (PGPSecretKey. (pgp/private-key keyPair)
                  (pgp/public-key keyPair)
                  (.get  (BcPGPDigestCalculatorProvider.) HashAlgorithmTags/SHA1)
@@ -55,6 +57,7 @@
   )
 
 (defn gen-sec-keyring [key-gen-fn passphrase]
+  (log/info (str key-gen-fn))
   (let [seckey (pgp-lock-key (key-gen-fn) passphrase)]
     (PGPSecretKeyRing. (.getEncoded seckey) (BcKeyFingerprintCalculator.))
     )
@@ -63,6 +66,7 @@
 
 (defn gen-ec-pair [opt]
   (let [ec (pgp-gen/ec-keypair-generator "secp256k1")]
+    (log/info (str opt))
     (pgp-gen/generate-keypair ec opt ))
   )
 
