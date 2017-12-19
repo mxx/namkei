@@ -45,7 +45,19 @@
                  :return       String
                  :query-params [ckiku :- String]
                  :summary      "get public key of input key pair"
-                 (ok (func/get-pub-key-text ckiku)))
+                 (call-func  func/get-pub-key-text ckiku ))
+
+           (POST "/public-key" []
+                :return       String
+                :query-params [ckiku :- String]
+                :summary      "get public key of input key pair"
+                (call-func  func/get-pub-key-text ckiku ))
+
+           (POST "/export-pgp-public-key" []
+                 :return       String
+                 :query-params [dsa-pub :- String, enc-pub :- String]
+                 :summary      "get public key of input key pair"
+                 (call-func func/export-pgp-public-key dsa-pub enc-pub))
 
            (POST "/encrypt-text" []
                 :return       String
@@ -58,7 +70,7 @@
                  :body-params [ckiku :- String, mifra :- String, termifckiku :- String]
                  :summary      "decrypt text by self private key"
                  (ok (func/decrypt-text mifra ckiku termifckiku)))
-
+           
            (POST "/signature" []
                  :return       String
                  :body-params [ckiku :- String, mifra :- String, termifckiku :- String]

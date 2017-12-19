@@ -28,6 +28,7 @@
                                      PGPSignature
                                      PGPSignatureList
                                      PGPUtil)
+           (java.util List)
            )
   (:use [clojure.java.io :only [output-stream input-stream]])
   )
@@ -57,7 +58,6 @@
   )
 
 (defn gen-sec-keyring [key-gen-fn passphrase]
-  (log/info (str key-gen-fn))
   (let [seckey (pgp-lock-key (key-gen-fn) passphrase)]
     (PGPSecretKeyRing. (.getEncoded seckey) (BcKeyFingerprintCalculator.))
     )
@@ -155,6 +155,45 @@
  ;;else
     (selmifra fa fi)
     ))
+
+(defn export-pgp-public-key [dsa-pub enc-pub]
+  (let [pub-s (pgp/decode dsa-pub)
+        pub-e (pgp/decode enc-pub)]
+    (-> 
+     (keyring/public-keyring-coll (concat pub-s pub-e))
+     pgp/encode-ascii
+     )
+    )
+  )
+
+(defn is-enc-key? [^PGPPublicKey key]
+  (:encryption-key?  (pgp/key-info key))
+  )
+
+(defn base64-text [encodefn x]
+  (-> x encodefn base64/encode String.)
+  )
+
+(defn priv-encode [^PGPPrivateKey key]
+  (.getEncoded key)
+  )
+
+(defn import-pgp-public-key [pgp-text]
+  (let [pubks (keyring/list-public-keys
+               (keyring/load-public-keyring pgp-text))]
+    {:enc-pub (map #(base64-text pgp/encode %) base64-text  (filter is-enc-key? pubks))
+     :dsa-pub (map #(base64-text pgp/encode %)  (filter #(not (is-enc-key? %)) pubks))}
+    )
+  )
+
+(defn import-pgp-private-key [pgp-text]
+  (let [secks (keyring/list-secret-keys
+               (keyring/load-secret-keyring pgp-text))]
+    {:enc-pub (map #(base64-text priv-encode %)  (filter is-enc-key? secks))
+     :dsa-pub (map #(base64-text priv-encode %)  (filter #(not (is-enc-key? %)) secks))}
+    )
+  )
+
 
 (defn- save-secret-key [name seckey]
   (with-open [o (output-stream name)]

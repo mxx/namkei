@@ -5,6 +5,7 @@
             [namkei.config :refer [env]]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.logging :as log]
+            [namkei.funcs :as func]
             [mount.core :as mount])
   (:gen-class))
 
@@ -43,7 +44,9 @@
                         (parse-opts cli-options)
                         mount/start-with-args
                         :started)]
-    (log/info component "started"))
+    (log/info component "started")
+    ;;(log/info (func/gen-enc-key "1234567"))
+    )
   (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app)))
 
 (defn -main [& args]
