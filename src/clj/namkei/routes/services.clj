@@ -7,10 +7,10 @@
 
 (s/defschema Key {:key s/Str,
                    :iv s/Str
-                   })
+                  })
 
 (defn call-func [fn & args]
-  (log/info (str fn ":") args)
+  (log/debug (str fn ":") args)
   (try
     (ok  (apply fn args))
     (catch Exception e
