@@ -66,7 +66,6 @@
 
 (defn gen-ec-pair [opt]
   (let [ec (pgp-gen/ec-keypair-generator "secp256k1")]
-    (log/info (str opt))
     (pgp-gen/generate-keypair ec opt ))
   )
 
@@ -156,6 +155,29 @@
     (selmifra fa fi)
     ))
 
+(defn encrypt-aes-cbc [text key iv]
+  (let [eng   (crypto/block-cipher :aes :cbc)
+        biv  (hex->bytes iv)
+        bkey (hex->bytes key)
+        data  (str->bytes text)]
+    (->
+     (crypto/encrypt-cbc eng data bkey biv)
+     base64/encode
+     bytes->str
+     ))
+  )
+
+(defn decrypt-aes-cbc [text key iv]
+  (let [eng   (crypto/block-cipher :aes :cbc)
+        biv  (hex->bytes iv)
+        bkey (hex->bytes key)
+        data  (base64/decode text)]
+    (->
+     (crypto/decrypt-cbc eng data bkey biv)
+     bytes->str
+     ))
+  )
+
 (defn export-pgp-public-key [dsa-pub enc-pub]
   (let [pub-s (pgp/decode dsa-pub)
         pub-e (pgp/decode enc-pub)]
@@ -174,7 +196,7 @@
   (-> x encodefn base64/encode String.)
   )
 
-(defn priv-encode [^PGPPrivateKey key]
+(defn priv-encode [^PGPSecretKey key]
   (.getEncoded key)
   )
 
@@ -187,10 +209,11 @@
   )
 
 (defn import-pgp-private-key [pgp-text]
+  ;;not finished
   (let [secks (keyring/list-secret-keys
                (keyring/load-secret-keyring pgp-text))]
-    {:enc-pub (map #(base64-text priv-encode %)  (filter is-enc-key? secks))
-     :dsa-pub (map #(base64-text priv-encode %)  (filter #(not (is-enc-key? %)) secks))}
+    {:enc-priv (map #(base64-text priv-encode %)  (filter is-enc-key? secks))
+     :dsa-priv (map #(base64-text priv-encode %)  (filter #(not (is-enc-key? %)) secks))}
     )
   )
 

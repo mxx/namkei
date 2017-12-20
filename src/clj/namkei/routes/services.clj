@@ -63,25 +63,25 @@
                 :return       String
                 :body-params [ckiku :- String, selmifra :- String]
                 :summary      "encrypt text in  public key of receiver"
-                (ok (func/encrypt-text selmifra ckiku)))
+                (call-func func/encrypt-text selmifra ckiku))
 
            (POST "/decrypt-text" []
                  :return       String
                  :body-params [ckiku :- String, mifra :- String, termifckiku :- String]
                  :summary      "decrypt text by self private key"
-                 (ok (func/decrypt-text mifra ckiku termifckiku)))
+                 (call-func (func/decrypt-text mifra ckiku termifckiku)))
            
            (POST "/signature" []
                  :return       String
                  :body-params [ckiku :- String, mifra :- String, termifckiku :- String]
                  :summary      "sign mifra by ckiku"
-                 (ok (func/sig-text mifra ckiku termifckiku)))
+                 (call-func func/sig-text mifra ckiku termifckiku))
 
            (POST "/verify" []
                  :return       String
                  :body-params [sinxa :- String, selmifra :- String, pubkey :- String]
                  :summary     "verify signature according to  public key"
-                 (ok (.toString  (func/verify-signature selmifra sinxa pubkey))))
+                 (call-func func/verify-signature selmifra sinxa pubkey))
 
            (POST "/mifra" []
                  :return       String
@@ -89,28 +89,42 @@
                  :summary     "block ciper, encrypt: fe fi decrypt: fa fi"
                  (call-func func/mifra fa fe fi))
 
+           (POST "/encrypt" []
+                 :description "AES CBC ENCRYPTOR"
+                 :return       String
+                 :body-params [fa :- String  ,   fe :- Key  ]
+                 :summary     "aes ciper, encrypt"
+                 (call-func func/encrypt-aes-cbc fa (:key fe) (:iv  fe)))
+
+           (POST "/decrypt" []
+                 :description "AES CBC DECRYPTOR"
+                 :return       String
+                 :body-params [fa :- String ,   fe :- Key  ]
+                 :summary     "aes ciper, decrypt"
+                 (call-func func/decrypt-aes-cbc fa (:key  fe) (:iv fe)))
+
            (GET "/kasnahu" []
                 :return       String
                 :query-params [cmene :- String, namcu :- String]
                 :summary      "hash value for object"
-                (ok (func/kasnahu cmene namcu)))
+                (call-func func/kasnahu cmene namcu))
            
            (POST "/kasnahu" []
                  :return      String
                  :body-params [cmene :- String, namcu :- String]
                  :summary     "hash value for object"
-                 (ok (func/kasnahu cmene namcu)))
+                 (call-func func/kasnahu cmene namcu))
            
            (GET "/kasnahu/:namcu/:cmene" []
                 :return      String
                 :path-params [cmene :- String, namcu :- String]
                 :summary     "hash value for object"
-                (ok (func/kasnahu cmene namcu)))
+                (call-func func/kasnahu cmene namcu))
            
            (POST "/kasnahupamoi" []
                  :return      String
                  :form-params [cmene :- String, namcu :- String]
                  :summary     "hash value for object"
-                 (ok (func/kasnahu cmene namcu)))
+                 (call-func func/kasnahu cmene namcu))
            
            ))
