@@ -28,6 +28,10 @@
                                      PGPSignature
                                      PGPSignatureList
                                      PGPUtil)
+           (org.bouncycastle.asn1.pkcs PrivateKeyInfo)
+           (org.bouncycastle.asn1  ASN1Sequence)
+           (java.security KeyFactory KeyPair)
+           (java.security.spec KeySpec PKCS8EncodedKeySpec)
            (java.util List)
            )
   (:use [clojure.java.io :only [output-stream input-stream]])
@@ -39,6 +43,10 @@
 
 (defn- hex-sha256 [text]
   (-> text hash/sha256 bytes->hex)
+  )
+
+(defn gen-aes-key [text]
+  [(hash/sha256 text) (hash/md5 text)]
   )
 
 (defn kasnahu [cmene namcu]
@@ -155,6 +163,16 @@
     (selmifra fa fi)
     ))
 
+(defn encrypt-aes-cbc-b [text bkey biv]
+  (let [eng   (crypto/block-cipher :aes :cbc)
+        data  (str->bytes text)]
+    (->
+     (crypto/encrypt-cbc eng data bkey biv)
+     base64/encode
+     bytes->str
+     ))
+  )
+
 (defn encrypt-aes-cbc [text key iv]
   (let [eng   (crypto/block-cipher :aes :cbc)
         biv  (hex->bytes iv)
@@ -166,6 +184,16 @@
      bytes->str
      ))
   )
+
+(defn decrypt-aes-cbc-b [text bkey biv]
+  (let [eng   (crypto/block-cipher :aes :cbc)
+        data  (base64/decode text)]
+    (->
+     (crypto/decrypt-cbc eng data bkey biv)
+     bytes->str
+     ))
+  )
+
 
 (defn decrypt-aes-cbc [text key iv]
   (let [eng   (crypto/block-cipher :aes :cbc)
