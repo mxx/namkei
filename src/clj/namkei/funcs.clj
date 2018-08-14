@@ -35,6 +35,16 @@
            (java.util List)
            )
   (:use [clojure.java.io :only [output-stream input-stream]])
+  (:gen-class :main false
+              :name "cn.id5.namkei.funcs"
+              ;;:prefix ""
+              :methods [
+                        ^{:static true} [ GenEncKey  [String] String]
+                        ^{:static true} [ GetPubKey  [String] String]
+                        ^{:static true} [ EncryptText  [String String] String]
+                        ^{:static true} [ DecryptText  [String String String] String] 
+                       ]
+              )
   )
 
 (defn- salt [text]
@@ -85,9 +95,15 @@
   (gen-ec-pair :ecdsa)
   )
 
+
+
 (defn gen-enc-key [passphrase]
   (-> (gen-sec-keyring gen-ec-enc-pair passphrase)
       .getEncoded base64/encode String.)
+  )
+
+(defn -GenEncKey [passphrase]
+  (gen-enc-key passphrase)
   )
 
 (defn gen-dsa-key [passphrase]
@@ -103,6 +119,10 @@
       String.)
   )
 
+(defn -GetPubKey [keyring]
+  (get-pub-key-text keyring)
+  )
+
 (defn encrypt-text [text pubkey]
   (let [pk (pgp/decode-public-key pubkey)]
     (-> 
@@ -112,6 +132,10 @@
      base64/encode
      String.
      ))
+  )
+
+(defn -EncryptText [text pubkey]
+  (encrypt-text text pubkey)
   )
 
 (defn extract-private-key [keyring passphrase]
@@ -124,6 +148,10 @@
   (let [privkey (extract-private-key keyring passphrase)]
     (pgp-msg/decrypt (base64/decode text) privkey)
     )
+  )
+
+(defn -DecryptText [text keyring passphrase]
+  (decrypt-text text keyring passphrase)
   )
 
 (defn sig-text [text keyring passphrase]

@@ -14,6 +14,7 @@
   (try
     (ok  (apply fn args))
     (catch Exception e
+      (log/info (.getMessage e))
       (bad-request (str  (.getMessage e)))
       ))
   )
@@ -32,24 +33,28 @@
            (POST "/gen-enc-key" []
                 :return       String
                 :body-params [termifckiku :- String]
+                :description "param termifckiku: is the pass-phrases to protect generated key pair."
                 :summary      "generate key pair for encryption"
                 (call-func func/gen-enc-key termifckiku))
 
            (POST "/gen-dsa-key" []
                  :return       String
                  :body-params [termifckiku :- String]
+                 :description "param termifckiku: is the pass-phrases to protect generated key pair."
                  :summary      "generate key pair for signature"
                  (call-func func/gen-dsa-key termifckiku))
 
            (GET "/public-key" []
                  :return       String
                  :query-params [ckiku :- String]
+                 :description "param ckiku: is the generated key pair."
                  :summary      "get public key of input key pair"
                  (call-func  func/get-pub-key-text ckiku ))
 
            (POST "/public-key" []
                 :return       String
                 :query-params [ckiku :- String]
+                :description "param ckiku: is the generated key pair."
                 :summary      "get public key of input key pair"
                 (call-func  func/get-pub-key-text ckiku ))
 
@@ -62,14 +67,16 @@
            (POST "/encrypt-text" []
                 :return       String
                 :body-params [ckiku :- String, selmifra :- String]
+                :description "param [ckiku]: is the generated key pair, [selmifra]: text will be encrypted"
                 :summary      "encrypt text in  public key of receiver"
                 (call-func func/encrypt-text selmifra ckiku))
 
            (POST "/decrypt-text" []
                  :return       String
                  :body-params [ckiku :- String, mifra :- String, termifckiku :- String]
+                 :description "param [ckiku]: is the generated key pair, [mifra]: encryped text, [termifckiku] is ckiku's pass-phrases"
                  :summary      "decrypt text by self private key"
-                 (call-func (func/decrypt-text mifra ckiku termifckiku)))
+                 (call-func func/decrypt-text mifra ckiku termifckiku))
            
            (POST "/signature" []
                  :return       String
