@@ -146,7 +146,8 @@
 
 (defn decrypt-text [text keyring passphrase]
   (let [privkey (extract-private-key keyring passphrase)]
-    (pgp-msg/decrypt (base64/decode text) privkey)
+    (String.
+     (pgp-msg/decrypt (base64/decode text) privkey))
     )
   )
 
